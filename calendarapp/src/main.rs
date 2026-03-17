@@ -4,6 +4,7 @@ use gtk::{glib, Application, ApplicationWindow};
 
 mod input;
 mod layout;
+mod calendar;
 
 fn run_app(app: &Application) {
 
@@ -19,13 +20,16 @@ fn run_app(app: &Application) {
         .build();
 
     input::set_input(&window);
-    layout::add_button(&window);
+    layout::make_layout(&window);
+    // layout::add_button(&window);
 
     window.present();
 } 
 
 
 fn main() -> glib::ExitCode {
+    calendar::get_date_test();
+
     let application = Application::builder()
         .application_id("com.example.CalendarApp")
         .build();
