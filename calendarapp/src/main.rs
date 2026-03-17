@@ -1,26 +1,13 @@
 use gtk4 as gtk;
 use gtk::prelude::*;
-use gtk::{glib, Application, ApplicationWindow, Button, CssProvider};
+use gtk::{glib, Application, ApplicationWindow};
 
 mod input;
+mod layout;
 
 fn run_app(app: &Application) {
-    let css = "
-        window { 
-        color: #FF7777;
-        background-color: #181818; 
-        font-size: 18px; 
-        font-family: \"UbuntuMono Nerd Font\"; 
-        }";
-    let provider = CssProvider::new();
-    provider.load_from_data(css);
 
-    let display = gtk::gdk::Display::default().expect("No display");
-    gtk::style_context_add_provider_for_display(
-        &display,
-        &provider,
-        gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    );
+    layout::set_style();
 
     let window = ApplicationWindow::builder()
         .application(app)
@@ -31,11 +18,8 @@ fn run_app(app: &Application) {
         .decorated(false)
         .build();
 
-    let button = Button::with_label("Click me!");
-    button.connect_clicked(|_| {
-        eprintln!("Clicked!");
-    });
-    window.set_child(Some(&button));
+    input::set_input(&window);
+    layout::add_button(&window);
 
     window.present();
 } 
