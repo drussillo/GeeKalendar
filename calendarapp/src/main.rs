@@ -2,6 +2,9 @@ use gtk4 as gtk;
 use gtk::prelude::*;
 use gtk::{glib, Application, ApplicationWindow};
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 mod input;
 mod layout;
 mod calendar;
@@ -19,22 +22,20 @@ fn run_app(app: &Application) {
         .decorated(false)
         .build();
 
-    input::set_input(&window);
-    layout::make_layout(&window);
-    // layout::add_button(&window);
+
+    let current_page = Rc::new(RefCell::new(calendar::Page::new(window.clone())));
+    current_page.borrow_mut().make_page();
+    input::set_input(current_page);
 
     window.present();
 } 
 
 
 fn main() -> glib::ExitCode {
-    calendar::get_date_test();
-
     let application = Application::builder()
         .application_id("com.example.CalendarApp")
         .build();
 
     application.connect_activate(run_app);
-
     application.run()
 }
