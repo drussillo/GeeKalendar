@@ -56,8 +56,15 @@ impl calendar::Page {
             Label::new(Some("Sun"))
         ];
 
-        for i in 0..7 {
-            page_grid.attach(&weekday_labels[i], i as i32, 1, 1, 1);
+        if self.start_sun {
+            for i in 1..7 {
+                page_grid.attach(&weekday_labels[i-1], i as i32, 1, 1, 1);
+            }
+            page_grid.attach(&weekday_labels[6], 0, 1, 1, 1);
+        } else {
+            for i in 0..7 {
+                page_grid.attach(&weekday_labels[i], i as i32, 1, 1, 1);
+            }
         }
 
         let days_grid = Grid::builder()
@@ -73,13 +80,13 @@ impl calendar::Page {
         let mut current_week: i32 = 0;
 
         // previous month fill
-        current_date -= Duration::days(current_date.weekday().num_days_from_monday() as i64);
+        current_date -= Duration::days(calendar::days_from_start(&current_date, self.start_sun) as i64);
         while current_date.month() != current_month {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
             days_grid.attach(
                 &button,
-                current_date.weekday().num_days_from_monday().try_into().unwrap(),
+                calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
                 current_week,
                 1,
                 1
@@ -92,25 +99,25 @@ impl calendar::Page {
             let button = Button::with_label(&current_date.day().to_string());
             days_grid.attach(
                 &button,
-                current_date.weekday().num_days_from_monday().try_into().unwrap(),
+                calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
                 current_week,
                 1,
                 1
             );
 
-            if current_date.weekday() == Weekday::Sun {
+            if current_date.weekday() == calendar::last_day_of_week(self.start_sun) {
                 current_week += 1;
             }
             current_date += Duration::days(1);
         }
 
         // next month fill
-        while current_date.weekday().num_days_from_monday() > 0 {
+        while calendar::days_from_start(&current_date, self.start_sun) > 0 {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
             days_grid.attach(
                 &button,
-                current_date.weekday().num_days_from_monday().try_into().unwrap(),
+                calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
                 current_week,
                 1,
                 1
