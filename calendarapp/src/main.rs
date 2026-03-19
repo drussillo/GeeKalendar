@@ -17,7 +17,7 @@ fn run_app(app: &Application) {
         .application(app)
         .title("Calendar")
         .default_width(350)
-        .default_height(350)
+        .default_height(450)
         .modal(true)
         .decorated(false)
         .build();

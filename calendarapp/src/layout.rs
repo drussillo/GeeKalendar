@@ -7,15 +7,8 @@ use chrono::{Duration};
 use crate::calendar;
 
 pub fn set_style() {
-    let css = "
-        window { 
-        color: #DDDD88;
-        background-color: #181818; 
-        font-size: 18px; 
-        font-family: \"UbuntuMono Nerd Font\"; 
-        }";
     let provider = CssProvider::new();
-    provider.load_from_data(css);
+    provider.load_from_path("resources/style.css");
 
     let display = gtk::gdk::Display::default().expect("No display");
     gtk::style_context_add_provider_for_display(
@@ -44,6 +37,7 @@ impl calendar::Page {
             .build();
 
         let title = &Label::new(Some(&format!("{}, {}", current_date.format("%B"), current_date.year())));
+        title.add_css_class("title");
         page_grid.attach(title, 0, 0, 7, 1);
 
         let weekday_labels = vec![
@@ -55,6 +49,11 @@ impl calendar::Page {
             Label::new(Some("Sat")),
             Label::new(Some("Sun"))
         ];
+
+        // add style
+        for label in &weekday_labels {
+            label.add_css_class("weekday")
+        }
 
         if self.start_sun {
             for i in 1..7 {
@@ -82,8 +81,10 @@ impl calendar::Page {
         // previous month fill
         current_date -= Duration::days(calendar::days_from_start(&current_date, self.start_sun) as i64);
         while current_date.month() != current_month {
-            // TODO: Add style and button funcitons
+            // TODO: add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            button.set_sensitive(false);
+            button.add_css_class("disabled-day");
             days_grid.attach(
                 &button,
                 calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
@@ -94,9 +95,18 @@ impl calendar::Page {
             current_date += Duration::days(1);
         }
 
+        // current month fill
+        let mut today_row = 0;
+        let mut today_col = 0;
         while current_date.month() == current_month {
-            // TODO: Add style and button funcitons
+            // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            if current_date.date_naive() == self.date.date_naive() {
+                today_row = current_week;
+                today_col = calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap();
+                button.add_css_class("today");
+            }
+
             days_grid.attach(
                 &button,
                 calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
@@ -113,8 +123,10 @@ impl calendar::Page {
 
         // next month fill
         while calendar::days_from_start(&current_date, self.start_sun) > 0 {
-            // TODO: Add style and button funcitons
+            // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            button.set_sensitive(false);
+            button.add_css_class("disabled-day");
             days_grid.attach(
                 &button,
                 calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap(),
@@ -125,9 +137,11 @@ impl calendar::Page {
             current_date += Duration::days(1);
         }
 
-        // println!("{}", current_date);
 
         self.window.set_child(Some(&page_grid));
+
+        // focus on today
+        days_grid.child_at(today_col, today_row).unwrap().grab_focus();
     }
 }
 

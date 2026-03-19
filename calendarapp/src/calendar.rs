@@ -22,9 +22,9 @@ impl Page {
     }
 
 
-    // pub fn reset_current_month(&mut self) {
-    //     self.current_month = 0;
-    // }
+    pub fn reset_current_month(&mut self) {
+        self.current_month = 0;
+    }
 }
 
 pub fn increment_month(date: &mut DateTime<Local>, mut months: i32) {
