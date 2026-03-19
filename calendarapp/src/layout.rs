@@ -36,13 +36,15 @@ impl calendar::Page {
 
 
         // build layout
-        let grid = Grid::builder()
+        let page_grid = Grid::builder()
+            .row_spacing(1)
+            .column_spacing(1)
             .column_homogeneous(true)
             .row_homogeneous(true)
             .build();
 
         let title = &Label::new(Some(&format!("{}, {}", current_date.format("%B"), current_date.year())));
-        grid.attach(title, 0, 0, 7, 1);
+        page_grid.attach(title, 0, 0, 7, 1);
 
         let weekday_labels = vec![
             Label::new(Some("Mon")),
@@ -55,18 +57,27 @@ impl calendar::Page {
         ];
 
         for i in 0..7 {
-            grid.attach(&weekday_labels[i], i as i32, 1, 1, 1);
+            page_grid.attach(&weekday_labels[i], i as i32, 1, 1, 1);
         }
 
+        let days_grid = Grid::builder()
+            .row_spacing(1)
+            .column_spacing(1)
+            .column_homogeneous(true)
+            .row_homogeneous(true)
+            .build();
+
+        page_grid.attach(&days_grid, 0, 2, 7, 5);
+
         let current_month = current_date.month();
-        let mut current_week: i32 = 2;
+        let mut current_week: i32 = 0;
 
         // previous month fill
         current_date -= Duration::days(current_date.weekday().num_days_from_monday() as i64);
         while current_date.month() != current_month {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
-            grid.attach(
+            days_grid.attach(
                 &button,
                 current_date.weekday().num_days_from_monday().try_into().unwrap(),
                 current_week,
@@ -79,7 +90,7 @@ impl calendar::Page {
         while current_date.month() == current_month {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
-            grid.attach(
+            days_grid.attach(
                 &button,
                 current_date.weekday().num_days_from_monday().try_into().unwrap(),
                 current_week,
@@ -97,7 +108,7 @@ impl calendar::Page {
         while current_date.weekday().num_days_from_monday() > 0 {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
-            grid.attach(
+            days_grid.attach(
                 &button,
                 current_date.weekday().num_days_from_monday().try_into().unwrap(),
                 current_week,
@@ -109,7 +120,7 @@ impl calendar::Page {
 
         // println!("{}", current_date);
 
-        self.window.set_child(Some(&grid));
+        self.window.set_child(Some(&page_grid));
     }
 }
 
