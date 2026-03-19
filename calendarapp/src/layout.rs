@@ -30,9 +30,9 @@ impl calendar::Page {
     pub fn make_page(&self) {
 
         // let mut current_date = Utc.with_ymd_and_hms(self.date.year(), (self.date.month() as i32 + self.current_month) as u32, 1, 12, 0, 0).unwrap();
-        let mut current_date = Utc.with_ymd_and_hms(self.date.year(), self.date.month(), 1, 12, 0, 0).unwrap();
-        // println!("{}", (self.date.month() as i32 + self.current_month) as u32);
-        // current_date.with_month(13);
+        // let mut current_date = Utc.with_ymd_and_hms(self.date.year(), self.date.month(), 1, 12, 0, 0).unwrap();
+        let mut current_date = Local.with_ymd_and_hms(self.date.year(), self.date.month(), 1, 12, 0, 0).unwrap();
+        calendar::increment_month(&mut current_date, self.current_month);
 
 
         // build layout
@@ -60,6 +60,22 @@ impl calendar::Page {
 
         let current_month = current_date.month();
         let mut current_week: i32 = 2;
+
+        // previous month fill
+        current_date -= Duration::days(current_date.weekday().num_days_from_monday() as i64);
+        while current_date.month() != current_month {
+            // TODO: Add style and button funcitons
+            let button = Button::with_label(&current_date.day().to_string());
+            grid.attach(
+                &button,
+                current_date.weekday().num_days_from_monday().try_into().unwrap(),
+                current_week,
+                1,
+                1
+            );
+            current_date += Duration::days(1);
+        }
+
         while current_date.month() == current_month {
             // TODO: Add style and button funcitons
             let button = Button::with_label(&current_date.day().to_string());
@@ -76,6 +92,22 @@ impl calendar::Page {
             }
             current_date += Duration::days(1);
         }
+
+        // next month fill
+        while current_date.weekday().num_days_from_monday() > 0 {
+            // TODO: Add style and button funcitons
+            let button = Button::with_label(&current_date.day().to_string());
+            grid.attach(
+                &button,
+                current_date.weekday().num_days_from_monday().try_into().unwrap(),
+                current_week,
+                1,
+                1
+            );
+            current_date += Duration::days(1);
+        }
+
+        // println!("{}", current_date);
 
         self.window.set_child(Some(&grid));
     }
