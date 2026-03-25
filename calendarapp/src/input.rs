@@ -42,6 +42,12 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                 value.borrow().make_page();
             }
 
+            (Key::f, _) => {
+                let previous = value.borrow().start_sun;
+                value.borrow_mut().start_sun = !previous;
+                value.borrow().make_page();
+            }
+
             (_, _) => {}
         }
 

@@ -8,7 +8,7 @@ use crate::calendar;
 
 pub fn set_style() {
     let provider = CssProvider::new();
-    provider.load_from_path("resources/style.css");
+    provider.load_from_path("/home/dave/code/CalendarApp/calendarapp/resources/style.css");  // TODO resource path
 
     let display = gtk::gdk::Display::default().expect("No display");
     gtk::style_context_add_provider_for_display(
@@ -81,8 +81,8 @@ impl calendar::Page {
         // previous month fill
         current_date -= Duration::days(calendar::days_from_start(&current_date, self.start_sun) as i64);
         while current_date.month() != current_month {
-            // TODO: add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            // TODO: Check for notes and update style
             button.set_sensitive(false);
             button.add_css_class("disabled-day");
             days_grid.attach(
@@ -101,6 +101,11 @@ impl calendar::Page {
         while current_date.month() == current_month {
             // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            // TODO: Check for notes and update style
+            button.connect_clicked(|_| {
+                // TODO: Load notes
+                println!("test");
+            });
             if current_date.date_naive() == self.date.date_naive() {
                 today_row = current_week;
                 today_col = calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap();
@@ -125,6 +130,7 @@ impl calendar::Page {
         while calendar::days_from_start(&current_date, self.start_sun) > 0 {
             // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+            // TODO: Check for notes and update style
             button.set_sensitive(false);
             button.add_css_class("disabled-day");
             days_grid.attach(

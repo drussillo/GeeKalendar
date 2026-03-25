@@ -1,43 +1,61 @@
 
 window { 
-  color: #DDDD88;
-  background-color: #181818; 
-  font-size: 20px; 
-  font-family: "UbuntuMono Nerd Font";
+    color: #DDDD88;
+    background-color: #181818; 
+    font-size: 20px; 
+    font-family: "UbuntuMono Nerd Font";
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
+    background-color: #121212;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .weekday {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 button { 
-  color: #DDDDDD;
-  background: #181818; 
-  border-color: #111111;
-  font-size: 24px; 
-  font-weight: bold;
-  font-family: "UbuntuMono Nerd Font";
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #DDDDDD;
+    background: #181818; 
+    border-color: #111111;
+    font-size: 24px; 
+    font-weight: bold;
+    font-family: "UbuntuMono Nerd Font";
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:focus {
-  border-color: #DDDD88;
-  box-shadow: none;
-  outline: none;
+    border-color: #DDDD88;
+    box-shadow: none;
+    outline: none;
 }
 
 
 .disabled-day {
-  color: #555555;
-  background: #121212; 
+    color: #555555;
+    background: #121212; 
 }
 
 .today {
-  color: #DDDD88;
-  background: #151515; 
+    color: #DDDD88;
+    background: #151515; 
+}
+
+.has_note {
+    position: relative;
+    padding: 10px 20px;
+}
+
+.has-dot::after {
+    content: ''; /* 2. Required for pseudo-elements */
+    position: absolute; /* 3. Positions the dot relative to the button */
+    top: -5px; /* Adjust vertical position */
+    right: -5px; /* Adjust horizontal position */
+    width: 10px; /* Dot size */
+    height: 10px; /* Dot size */
+    background-color: red; /* Dot color */
+    border-radius: 50%; /* Makes the dot a circle */
+    display: inline-block;
 }
