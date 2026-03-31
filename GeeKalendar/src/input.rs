@@ -98,6 +98,9 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                 value.borrow().make_page();
             }
 
+
+            (Key::a, _) => value.borrow().add_note(),
+
             (_, _) => {}
         }
 

@@ -43,12 +43,18 @@ button:focus {
     background: #151515; 
 }
 
+.day-with-note {
+    background-image: radial-gradient(circle, #DDDD88 3px, transparent 4px);
+    background-position: 0px 19px;
+    background-repeat: no-repeat;
+}
 
-.todo_note_box {
+
+.todo-note-box {
     background-color: #161622;
 }
 
-.todo_note {
+.todo-note {
     /* color: #FF0000; */
     line-height: 1.25;
 }

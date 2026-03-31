@@ -88,7 +88,11 @@ impl calendar::Page {
         current_date -= Duration::days(calendar::days_from_start(&current_date, self.start_sun) as i64);
         while current_date.month() != current_month {
             let button = Button::with_label(&current_date.day().to_string());
-            // TODO: Check for notes and update style
+
+            if let Some(_) = notes::read_notes(&current_date) {
+                button.add_css_class("day-with-note");
+            }
+
             button.set_sensitive(false);
             button.add_css_class("disabled-day");
             days_grid.attach(
@@ -112,10 +116,9 @@ impl calendar::Page {
                 button.set_data("date", current_date);
             }
 
-            // TODO: Check for notes and update style
-            button.connect_clicked(|_| {
-                // TODO: call add_note
-            });
+            if let Some(_) = notes::read_notes(&current_date) {
+                button.add_css_class("day-with-note");
+            }
 
             if current_date.date_naive() == self.date.date_naive() {
                 today_row = current_week;
@@ -141,7 +144,11 @@ impl calendar::Page {
         while calendar::days_from_start(&current_date, self.start_sun) > 0 {
             // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
-            // TODO: Check for notes and update style
+
+            if let Some(_) = notes::read_notes(&current_date) {
+                button.add_css_class("day-with-note");
+            }
+
             button.set_sensitive(false);
             button.add_css_class("disabled-day");
             days_grid.attach(
@@ -163,15 +170,14 @@ impl calendar::Page {
     }
 
     pub fn list_current_notes(&self) {
-        let button = gtk4::prelude::GtkWindowExt::focus(&self.window)
-            .unwrap();
-
         // get date
         let date: &DateTime<Local>;
         unsafe {
-            date = button.data::<DateTime<Local>>("date")
-            .unwrap()
-            .as_ref();
+            date = gtk4::prelude::GtkWindowExt::focus(&self.window)
+                .unwrap()
+                .data::<DateTime<Local>>("date")
+                .unwrap()
+                .as_ref();
         }
 
         let notes_box = Box::builder()
@@ -213,8 +219,28 @@ impl calendar::Page {
 
 
     pub fn add_note(&self) {
-        // let _notes = notes::read_notes(&date);
-        println!("add note");
+        let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
+
+        let date: &DateTime<Local>;
+        unsafe {
+            date = button
+                .data::<DateTime<Local>>("date")
+                .unwrap()
+                .as_ref();
+        }
+
+
+        // TODO: take input
+        let new_note = notes::Note::new(*date, "custom note", "customnote message text.");
+
+
+        let mut notes = notes::read_notes(&date).unwrap_or_default();
+        notes.push(new_note);
+        notes::write_notes(&notes);
+
+        // update UI
+        button.add_css_class("day-with-note");
+        self.list_current_notes();
     }
 }
 
@@ -223,7 +249,7 @@ impl notes::Note {
     pub fn get_box(&self) -> Box {
         let note_box = Box::builder()
             .orientation(gtk::Orientation::Vertical)
-            .css_classes(vec!("todo_note_box"))
+            .css_classes(vec!("todo-note-box"))
             .build();
 
         // title

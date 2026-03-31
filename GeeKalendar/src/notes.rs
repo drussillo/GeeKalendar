@@ -52,6 +52,10 @@ pub fn read_notes(date: &DateTime<Local>) -> Option<Vec<Note>> {
 
 
 pub fn write_notes(notes: &Vec<Note>) {
+    if notes.is_empty() {
+        return
+    }
+
     let date = DateTime::parse_from_rfc3339(&notes[0].date).unwrap();
 
     let mut path = BaseDirs::new()
