@@ -32,10 +32,60 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                 value.borrow().make_page();
             }
 
-            (Key::h, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Left),
-            (Key::j, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Down),
-            (Key::k, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Up),
-            (Key::l, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Right),
+            // (Key::h, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Left),
+            // (Key::j, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Down),
+            // (Key::k, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Up),
+            // (Key::l, _) => value.borrow().window.emit_move_focus(gtk4::DirectionType::Right),
+
+            (Key::h, _) => {
+                value.borrow().window.emit_move_focus(gtk4::DirectionType::Left);
+                value.borrow().list_current_notes();
+            }
+            (Key::j, _) => {
+                value.borrow().window.emit_move_focus(gtk4::DirectionType::Down);
+                value.borrow().list_current_notes();
+            }
+            (Key::k, _) => {
+                value.borrow().window.emit_move_focus(gtk4::DirectionType::Up);
+                value.borrow().list_current_notes();
+            }
+            (Key::l, _) => {
+                value.borrow().window.emit_move_focus(gtk4::DirectionType::Right);
+                value.borrow().list_current_notes();
+            }
+
+            (Key::n, ModifierType::CONTROL_MASK) => {
+                let vadjustment = value.borrow().window
+                    .child()
+                    .unwrap()
+                    .downcast::<gtk::Grid>()
+                    .ok()
+                    .unwrap()
+                    .child_at(7, 0)
+                    .unwrap()
+                    .downcast::<gtk::ScrolledWindow>()
+                    .ok()
+                    .unwrap()
+                    .vadjustment();
+                vadjustment.set_value(vadjustment.value() + 20.0);
+            }
+
+            (Key::p, ModifierType::CONTROL_MASK) => {
+                let vadjustment = value.borrow().window
+                    .child()
+                    .unwrap()
+                    .downcast::<gtk::Grid>()
+                    .ok()
+                    .unwrap()
+                    .child_at(7, 0)
+                    .unwrap()
+                    .downcast::<gtk::ScrolledWindow>()
+                    .ok()
+                    .unwrap()
+                    .vadjustment();
+                vadjustment.set_value(vadjustment.value() - 20.0);
+            }
+        
 
             (Key::r, _) => {
                 value.borrow_mut().reset_current_month();

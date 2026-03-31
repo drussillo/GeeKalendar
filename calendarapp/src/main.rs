@@ -8,12 +8,12 @@ use std::cell::RefCell;
 mod input;
 mod layout;
 mod calendar;
-// mod notes;
+mod notes;
 
 // debug
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
-use serde_json::{Value, Result};
+// use serde::{Deserialize, Serialize};
+// use serde_json::{Value, Result};
 // debug
 
 fn run_app(app: &Application) {
@@ -39,17 +39,17 @@ fn run_app(app: &Application) {
 
 
 fn main() -> glib::ExitCode {
-    // let notes = vec!(
-    //     notes::Note::new(Local::now(), "note1", "this is my first note."),
-    //     notes::Note::new(Local::now(), "note2", "this is my second note.")
-    // );
-    //
-    // // let j = serde_json::to_string_pretty(&notes);
-    //
-    // notes::read_notes(Local::now());
-
-
-
+    let notes = vec!(
+    notes::Note::new(Local::now(), "title1", "message1"),
+    notes::Note::new(Local::now(), "title2", "message2"),
+    notes::Note::new(Local::now(), "title1", "message1"),
+    notes::Note::new(Local::now(), "title2", "message2"),
+    notes::Note::new(Local::now(), "title1", "message1"),
+    notes::Note::new(Local::now(), "title2", "message2"),
+    notes::Note::new(Local::now(), "title1", "message1"),
+    notes::Note::new(Local::now(), "title2", "message2"),
+    );
+    notes::write_notes(&notes);
 
 
     let application = Application::builder()

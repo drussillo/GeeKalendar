@@ -14,7 +14,7 @@ pub struct Page {
 impl Page {
     pub fn new(window: ApplicationWindow) -> Self {
         Self { 
-            window,
+            window: window,
             date: Local::now(),
             current_month: 0,
             start_sun: true  // TODO

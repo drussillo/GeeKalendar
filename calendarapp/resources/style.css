@@ -43,19 +43,12 @@ button:focus {
     background: #151515; 
 }
 
-.has_note {
-    position: relative;
-    padding: 10px 20px;
+
+.todo_note_box {
+    background-color: #161622;
 }
 
-.has-dot::after {
-    content: ''; /* 2. Required for pseudo-elements */
-    position: absolute; /* 3. Positions the dot relative to the button */
-    top: -5px; /* Adjust vertical position */
-    right: -5px; /* Adjust horizontal position */
-    width: 10px; /* Dot size */
-    height: 10px; /* Dot size */
-    background-color: red; /* Dot color */
-    border-radius: 50%; /* Makes the dot a circle */
-    display: inline-block;
+.todo_note {
+    /* color: #FF0000; */
+    line-height: 1.25;
 }

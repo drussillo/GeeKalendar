@@ -1,10 +1,11 @@
 use gtk4 as gtk;
 use gtk::prelude::*;
-use gtk::{CssProvider, Button, Grid, Label};
+use gtk::{CssProvider, Button, Grid, Label, ScrolledWindow, Box};
 use chrono::prelude::*;
 use chrono::{Duration};
 
 use crate::calendar;
+use crate::notes;
 
 pub fn set_style() {
     let provider = CssProvider::new();
@@ -21,12 +22,8 @@ pub fn set_style() {
 impl calendar::Page {
 
     pub fn make_page(&self) {
-
-        // let mut current_date = Utc.with_ymd_and_hms(self.date.year(), (self.date.month() as i32 + self.current_month) as u32, 1, 12, 0, 0).unwrap();
-        // let mut current_date = Utc.with_ymd_and_hms(self.date.year(), self.date.month(), 1, 12, 0, 0).unwrap();
         let mut current_date = Local.with_ymd_and_hms(self.date.year(), self.date.month(), 1, 12, 0, 0).unwrap();
         calendar::increment_month(&mut current_date, self.current_month);
-
 
         // build layout
         let page_grid = Grid::builder()
@@ -66,6 +63,15 @@ impl calendar::Page {
             }
         }
 
+        // notes scrolled window
+        let notes_window = ScrolledWindow::builder()
+            .sensitive(false)
+            .build();
+        page_grid.attach(&notes_window, 7, 0, 4, 7);
+        // TODO: add style?
+
+
+        // calendar days 
         let days_grid = Grid::builder()
             .row_spacing(1)
             .column_spacing(1)
@@ -99,13 +105,18 @@ impl calendar::Page {
         let mut today_row = 0;
         let mut today_col = 0;
         while current_date.month() == current_month {
-            // TODO: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
+
+            // attach date to button object
+            unsafe {
+                button.set_data("date", current_date);
+            }
+
             // TODO: Check for notes and update style
             button.connect_clicked(|_| {
-                // TODO: Load notes
-                println!("test");
+                // TODO: call add_note
             });
+
             if current_date.date_naive() == self.date.date_naive() {
                 today_row = current_week;
                 today_col = calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap();
@@ -146,8 +157,104 @@ impl calendar::Page {
 
         self.window.set_child(Some(&page_grid));
 
-        // focus on today
+        // focus on today and display notes
         days_grid.child_at(today_col, today_row).unwrap().grab_focus();
+        self.list_current_notes();
+    }
+
+    pub fn list_current_notes(&self) {
+        let button = gtk4::prelude::GtkWindowExt::focus(&self.window)
+            .unwrap();
+
+        // get date
+        let date: &DateTime<Local>;
+        unsafe {
+            date = button.data::<DateTime<Local>>("date")
+            .unwrap()
+            .as_ref();
+        }
+
+        let notes_box = Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .margin_top(5)
+            .margin_start(5)
+            .margin_end(5)
+            .spacing(5)
+            .build();
+
+        // get notes vector
+        if let Some(current_notes) = notes::read_notes(date) {
+            println!("some");
+            for note in current_notes {
+                notes_box.append(&note.get_box());
+            }
+        } else {
+            println!("none");
+            notes_box.set_homogeneous(true);
+            notes_box.append(
+                &Label::builder()
+                    .label(&format!("no notes available\nfor {}", date.date_naive()))
+                    .justify(gtk::Justification::Center)
+                    .build()
+            );
+        }
+
+        self.window
+            .child()
+            .unwrap()
+            .downcast::<Grid>()
+            .ok()
+            .unwrap()
+            .child_at(7, 0)
+            .unwrap()
+            .downcast::<ScrolledWindow>()
+            .ok()
+            .unwrap()
+            .set_child(Some(&notes_box));
+    }
+
+
+    pub fn add_note(&self) {
+        // let _notes = notes::read_notes(&date);
+        println!("add note");
+    }
+}
+
+
+impl notes::Note {
+    pub fn get_box(&self) -> Box {
+        let note_box = Box::builder()
+            .orientation(gtk::Orientation::Vertical)
+            .css_classes(vec!("todo_note_box"))
+            .build();
+
+        // title
+        note_box.append(&Label::builder()
+            // .css_classes(vec!(""))
+            .margin_top(10)
+            .margin_bottom(5)
+            .justify(gtk::Justification::Center)
+            .use_markup(true)
+            .label(format!("\
+                <b>{}</b>\
+                ", self.title))
+            .build());
+
+        // message
+        note_box.append(&Label::builder()
+            // .justify(gtk::Justification::Left)
+            .halign(gtk::Align::Start)
+            .margin_bottom(10)
+            .margin_start(10)
+            .wrap(true)
+            .wrap_mode(gtk::pango::WrapMode::WordChar)
+            .use_markup(true)
+            .label(format!("\
+                {}\
+                ", self.message))
+            .build());
+
+        note_box
     }
 }
 
