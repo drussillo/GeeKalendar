@@ -39,17 +39,17 @@ fn run_app(app: &Application) {
 
 
 fn main() -> glib::ExitCode {
-    let notes = vec!(
-        notes::Note::new(Local::now(), "title1", "message1"),
-        notes::Note::new(Local::now(), "title2", "message2"),
-        notes::Note::new(Local::now(), "title1", "message1"),
-        notes::Note::new(Local::now(), "title2", "message2"),
-        notes::Note::new(Local::now(), "title1", "message1"),
-        notes::Note::new(Local::now(), "title2", "message2"),
-        notes::Note::new(Local::now(), "title1", "message1"),
-        notes::Note::new(Local::now(), "title2", "message2"),
-    );
-    notes::write_notes(&notes);
+    // let notes = vec!(
+    //     notes::Note::new(Local::now(), "title1", "message1"),
+    //     notes::Note::new(Local::now(), "title2", "message2"),
+    //     notes::Note::new(Local::now(), "title1", "message1"),
+    //     notes::Note::new(Local::now(), "title2", "message2"),
+    //     notes::Note::new(Local::now(), "title1", "message1"),
+    //     notes::Note::new(Local::now(), "title2", "message2"),
+    //     notes::Note::new(Local::now(), "title1", "message1"),
+    //     notes::Note::new(Local::now(), "title2", "message2"),
+    // );
+    // notes::write_notes(&notes);
 
     let application = Application::builder()
         .application_id("com.example.GeeKalendar")
