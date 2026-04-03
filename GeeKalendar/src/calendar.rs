@@ -4,6 +4,7 @@ use chrono::prelude::*;
 use chrono::{ Duration, DateTime};
 
 
+#[derive(Clone)]
 pub struct Page {
     pub window: ApplicationWindow,
     pub date: DateTime<Local>,

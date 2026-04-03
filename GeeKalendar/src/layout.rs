@@ -1,8 +1,9 @@
 use gtk4 as gtk;
 use gtk::prelude::*;
-use gtk::{CssProvider, Button, Grid, Label, ScrolledWindow, Box};
+use gtk::{CssProvider, Button, Grid, Label, ScrolledWindow, Box, Overlay, Entry};
 use chrono::prelude::*;
 use chrono::{Duration};
+use regex::Regex;
 
 use crate::calendar;
 use crate::notes;
@@ -161,8 +162,13 @@ impl calendar::Page {
             current_date += Duration::days(1);
         }
 
+        // overlay
+        let note_overlay = Overlay::builder()
+            .child(&page_grid)
+            .build();
 
-        self.window.set_child(Some(&page_grid));
+        // self.window.set_child(Some(&page_grid));
+        self.window.set_child(Some(&note_overlay));
 
         // focus on today and display notes
         days_grid.child_at(today_col, today_row).unwrap().grab_focus();
@@ -205,22 +211,21 @@ impl calendar::Page {
 
         self.window
             .child()
+            .and_downcast::<Overlay>()
             .unwrap()
-            .downcast::<Grid>()
-            .ok()
+            .child()
+            .and_downcast::<Grid>()
             .unwrap()
             .child_at(7, 0)
-            .unwrap()
-            .downcast::<ScrolledWindow>()
-            .ok()
+            .and_downcast::<ScrolledWindow>()
             .unwrap()
             .set_child(Some(&notes_box));
     }
 
 
-    pub fn add_note(&self) {
+    pub fn add_note(self) {
+        // extract date
         let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
-
         let date: &DateTime<Local>;
         unsafe {
             date = button
@@ -229,19 +234,120 @@ impl calendar::Page {
                 .as_ref();
         }
 
+        let overlay_ref = &self.window
+            .child()
+            .and_downcast::<Overlay>()
+            .unwrap();
 
-        // TODO: take input
-        let new_note = notes::Note::new(*date, "custom note", "customnote message text.");
+        // disable background
+        overlay_ref
+            .child()
+            .and_downcast::<Grid>()
+            .unwrap()
+            .set_sensitive(false);
 
+        // create input overlay
+        let title_input = Entry::builder()
+            .placeholder_text("title")
+            .margin_top(10)
+            .margin_bottom(10)
+            .margin_end(10)
+            .margin_start(10)
+            .build();
 
-        let mut notes = notes::read_notes(&date).unwrap_or_default();
-        notes.push(new_note);
-        notes::write_notes(&notes);
+        let message_input = Entry::builder()
+            .placeholder_text("message")
+            .margin_top(10)
+            .margin_bottom(10)
+            .margin_end(10)
+            .margin_start(10)
+            .build();
 
-        // update UI
-        button.add_css_class("day-with-note");
-        self.list_current_notes();
+        // todo maybe use textview?
+        // let message_input = TextView::builder()
+        //     .margin_top(10)
+        //     .margin_bottom(10)
+        //     .margin_end(10)
+        //     .margin_start(10)
+        //     .height_request(100)
+        //     .accepts_tab(false)
+        //     .build();
+
+        let input_box = Box::builder()
+            .css_classes(vec!("note-overlay"))
+            .valign(gtk::Align::Center)
+            .halign(gtk::Align::Center)
+            .orientation(gtk::Orientation::Vertical)
+            .build();
+        input_box.append(&Label::builder()
+            .use_markup(true)
+            .label(format!("<b>NEW NOTE FOR {}</b>", date.date_naive()))
+            .margin_top(10)
+            .margin_bottom(10)
+            .margin_end(10)
+            .margin_start(10)
+            .build());
+        input_box.append(&title_input);
+        input_box.append(&message_input);
+
+        overlay_ref.add_overlay(&input_box);
+        title_input.grab_focus();
+
+        // set signals
+        let overlay_clone = overlay_ref.clone();
+        let input_box_clone = input_box.clone();
+        let title_input_clone1 = title_input.clone();
+        let title_input_clone2 = title_input.clone();
+        let message_input_clone = message_input.clone();
+        let grid_clone = overlay_ref
+            .child()
+            .and_downcast::<Grid>()
+            .unwrap()
+            .clone();
+        let self_clone = self.clone();
+        // let button_clone = button.clone();
+
+        message_input.connect_activate(move |_| {
+            title_input_clone1.emit_activate();
+        });
+
+        title_input.connect_activate(move |_| {
+            let new_title = title_input_clone2.text();
+            let title_re = Regex::new("^.{1,30}$").unwrap();
+            let new_message = message_input_clone.text();
+
+            if !title_re.is_match(&new_title) {
+                title_input_clone2.set_text("");
+                // TODO: add css??
+                title_input_clone2.set_placeholder_text(Some("Invalid title"));
+                return
+            }
+
+            overlay_clone.remove_overlay(&input_box_clone);
+            grid_clone.set_sensitive(true);
+
+            // add note
+            let new_note = notes::Note::new(*date, &new_title, &new_message);
+            let mut notes = notes::read_notes(&date).unwrap_or_default();
+            notes.push(new_note);
+            notes::write_notes(&notes);
+
+            // update UI
+            self_clone.make_page();
+        });
     }
+
+
+    pub fn has_overlay(&self) -> bool {
+        self.window
+            .child()
+            .and_downcast::<Overlay>()
+            .unwrap()
+            .observe_children()
+            .n_items() > 1
+    }
+
+    // fn focus_on_date()
 }
 
 
@@ -281,4 +387,5 @@ impl notes::Note {
         note_box
     }
 }
+
 

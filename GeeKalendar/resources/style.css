@@ -50,6 +50,12 @@ button:focus {
 }
 
 
+.note-overlay {
+    /* background-color: #FFFFFF; */
+    background: #181818;
+}
+
+
 .todo-note-box {
     background-color: #161622;
 }

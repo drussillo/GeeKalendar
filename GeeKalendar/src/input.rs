@@ -6,11 +6,36 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::calendar;
+use crate::layout;
 
 pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
     let controller = gtk::EventControllerKey::new();
     let value = page.clone();
     controller.connect_key_pressed(move |_, key, _key_code, modifier_type| {
+        let overlay = value.borrow().has_overlay();
+
+        if overlay {
+            if key == Key::Escape {
+                // TODO: fix this
+                let overlay_ref = &value.borrow().window
+                    .child()
+                    .and_downcast::<gtk::Overlay>()
+                    .unwrap();
+                let overlay_child = &overlay_ref
+                    .observe_children()
+                    .item(1)
+                    .and_downcast::<gtk::Box>()
+                    .unwrap();
+                overlay_ref.remove_overlay(overlay_child);
+                overlay_ref
+                    .child()
+                    .and_downcast::<gtk::Grid>()
+                    .unwrap()
+                    .set_sensitive(true);
+            }
+            return glib::Propagation::Proceed;
+        }
+
 
         match(key, modifier_type) {
             (Key::Escape, _) => std::process::exit(0),
@@ -57,14 +82,10 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::n, ModifierType::CONTROL_MASK) => {
                 let vadjustment = value.borrow().window
                     .child()
-                    .unwrap()
-                    .downcast::<gtk::Grid>()
-                    .ok()
+                    .and_downcast::<gtk::Grid>()
                     .unwrap()
                     .child_at(7, 0)
-                    .unwrap()
-                    .downcast::<gtk::ScrolledWindow>()
-                    .ok()
+                    .and_downcast::<gtk::ScrolledWindow>()
                     .unwrap()
                     .vadjustment();
                 vadjustment.set_value(vadjustment.value() + 20.0);
@@ -73,14 +94,10 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::p, ModifierType::CONTROL_MASK) => {
                 let vadjustment = value.borrow().window
                     .child()
-                    .unwrap()
-                    .downcast::<gtk::Grid>()
-                    .ok()
+                    .and_downcast::<gtk::Grid>()
                     .unwrap()
                     .child_at(7, 0)
-                    .unwrap()
-                    .downcast::<gtk::ScrolledWindow>()
-                    .ok()
+                    .and_downcast::<gtk::ScrolledWindow>()
                     .unwrap()
                     .vadjustment();
                 vadjustment.set_value(vadjustment.value() - 20.0);
@@ -98,8 +115,7 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                 value.borrow().make_page();
             }
 
-
-            (Key::a, _) => value.borrow().add_note(),
+            (Key::a, _) => value.borrow().clone().add_note(),
 
             (_, _) => {}
         }
@@ -108,3 +124,4 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
     });
     page.borrow().window.add_controller(controller);
 }
+
