@@ -307,8 +307,6 @@ impl calendar::Page {
         let self_clone = self.clone();
         let button_clone = button.clone();
 
-        // input_box.connect_destroy(move |_| {});
-
         message_input.connect_activate(move |_| {
             title_input_clone1.emit_activate();
         });
@@ -338,6 +336,19 @@ impl calendar::Page {
             button_clone.add_css_class("day-with-note");
             self_clone.focus_on_date(date);
             self_clone.list_current_notes();
+        });
+
+
+        let overlay_ref_clone = overlay_ref.clone();
+        let self_clone1 = self.clone();
+
+        input_box.connect_unrealize(move |_| {
+            overlay_ref_clone
+                .child()
+                .and_downcast::<Grid>()
+                .unwrap()
+                .set_sensitive(true);
+            self_clone1.focus_on_date(date);
         });
     }
 

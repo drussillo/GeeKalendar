@@ -16,7 +16,6 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
 
         if overlay {
             if key == Key::Escape {
-                // TODO: fix this
                 let overlay_ref = &value.borrow().window
                     .child()
                     .and_downcast::<gtk::Overlay>()
@@ -27,11 +26,6 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                     .and_downcast::<gtk::Box>()
                     .unwrap();
                 overlay_ref.remove_overlay(overlay_child);
-                overlay_ref
-                    .child()
-                    .and_downcast::<gtk::Grid>()
-                    .unwrap()
-                    .set_sensitive(true);
             }
             return glib::Propagation::Proceed;
         }
