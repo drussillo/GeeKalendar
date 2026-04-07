@@ -76,6 +76,9 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::n, ModifierType::CONTROL_MASK) => {
                 let vadjustment = value.borrow().window
                     .child()
+                    .and_downcast::<gtk::Overlay>()
+                    .unwrap()
+                    .child()
                     .and_downcast::<gtk::Grid>()
                     .unwrap()
                     .child_at(7, 0)
@@ -87,6 +90,9 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
 
             (Key::p, ModifierType::CONTROL_MASK) => {
                 let vadjustment = value.borrow().window
+                    .child()
+                    .and_downcast::<gtk::Overlay>()
+                    .unwrap()
                     .child()
                     .and_downcast::<gtk::Grid>()
                     .unwrap()
