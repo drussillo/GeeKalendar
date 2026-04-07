@@ -327,7 +327,7 @@ impl calendar::Page {
             grid_clone.set_sensitive(true);
 
             // add note
-            let new_note = notes::Note::new(*date, &new_title, &new_message);
+            let new_note = notes::Note::new(date, &new_title, &new_message);
             let mut notes = notes::read_notes(&date).unwrap_or_default();
             notes.push(new_note);
             notes::write_notes(&notes);
@@ -347,7 +347,10 @@ impl calendar::Page {
             .n_items() > 1
     }
 
-    // fn focus_on_date()
+    // fn focus_on_date(&self, date: &DateTime<Local>) {
+    //     let col = calendar::days_from_start(date, self.start_sun);
+    //     let row = 
+    // }
 }
 
 

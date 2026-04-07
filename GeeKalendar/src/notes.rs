@@ -18,7 +18,7 @@ pub struct Note {
 }
 
 impl Note {
-    pub fn new(date: DateTime<Local>, title: &str, message: &str) -> Self {
+    pub fn new(date: &DateTime<Local>, title: &str, message: &str) -> Self {
         Note {
             date: date.to_rfc3339(),
             title: title.to_owned(),
