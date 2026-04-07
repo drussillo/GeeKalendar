@@ -305,7 +305,9 @@ impl calendar::Page {
             .unwrap()
             .clone();
         let self_clone = self.clone();
-        // let button_clone = button.clone();
+        let button_clone = button.clone();
+
+        // input_box.connect_destroy(move |_| {});
 
         message_input.connect_activate(move |_| {
             title_input_clone1.emit_activate();
@@ -333,7 +335,9 @@ impl calendar::Page {
             notes::write_notes(&notes);
 
             // update UI
-            self_clone.make_page();
+            button_clone.add_css_class("day-with-note");
+            self_clone.focus_on_date(date);
+            self_clone.list_current_notes();
         });
     }
 
@@ -347,10 +351,24 @@ impl calendar::Page {
             .n_items() > 1
     }
 
-    // fn focus_on_date(&self, date: &DateTime<Local>) {
-    //     let col = calendar::days_from_start(date, self.start_sun);
-    //     let row = 
-    // }
+    fn focus_on_date(&self, date: &DateTime<Local>) {
+        let col = calendar::days_from_start(date, self.start_sun);
+        let row = (calendar::days_from_start(&date.with_day(1).unwrap(), self.start_sun) + date.day()) / 7;
+
+        self.window
+            .child()
+            .and_downcast::<Overlay>()
+            .unwrap()
+            .child()
+            .and_downcast::<Grid>()
+            .unwrap()
+            .child_at(0, 2)
+            .and_downcast::<Grid>()
+            .unwrap()
+            .child_at(col as i32, row as i32)
+            .unwrap()
+            .grab_focus();
+    }
 }
 
 
