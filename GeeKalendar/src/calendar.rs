@@ -1,7 +1,7 @@
 use gtk4 as gtk;
 use gtk::{ApplicationWindow};
 use chrono::prelude::*;
-use chrono::{ Duration, DateTime};
+use chrono::{Duration, DateTime};
 
 
 #[derive(Clone)]
@@ -9,7 +9,8 @@ pub struct Page {
     pub window: ApplicationWindow,
     pub date: DateTime<Local>,
     pub current_month: i32,
-    pub start_sun: bool
+    pub start_sun: bool,
+    pub current_note_index: i32
 }
 
 impl Page {
@@ -18,7 +19,8 @@ impl Page {
             window: window,
             date: Local::now(),
             current_month: 0,
-            start_sun: true  // TODO
+            start_sun: true,
+            current_note_index: 0
         }
     }
 

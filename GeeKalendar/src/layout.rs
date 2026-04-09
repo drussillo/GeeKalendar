@@ -196,8 +196,12 @@ impl calendar::Page {
 
         // get notes vector
         if let Some(current_notes) = notes::read_notes(date) {
-            for note in current_notes {
-                notes_box.append(&note.get_box());
+            for i in 0..current_notes.len() {
+                let current_note_box = current_notes[i].get_box();
+                if i == (self.current_note_index.abs() as usize) % current_notes.len() {
+                    current_note_box.add_css_class("todo-note-box-selected");
+                }
+                notes_box.append(&current_note_box);
             }
         } else {
             notes_box.set_homogeneous(true);
@@ -222,6 +226,22 @@ impl calendar::Page {
             .set_child(Some(&notes_box));
     }
 
+    // pub fn update_selected_note(&self) {
+    //     let notes = &self.window
+    //         .child()
+    //         .and_downcast::<Overlay>()
+    //         .unwrap()
+    //         .child()
+    //         .and_downcast::<Grid>()
+    //         .unwrap()
+    //         .child_at(7, 0)
+    //         .and_downcast::<ScrolledWindow>()
+    //         .unwrap()
+    //         .observe_children();
+    //     for note in notes {
+    //         let x = note.unwrap();
+    //     }
+    // }
 
     pub fn add_note(self) {
         // extract date

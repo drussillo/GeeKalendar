@@ -6,7 +6,6 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::calendar;
-use crate::layout;
 
 pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
     let controller = gtk::EventControllerKey::new();
@@ -74,33 +73,39 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             }
 
             (Key::n, ModifierType::CONTROL_MASK) => {
-                let vadjustment = value.borrow().window
-                    .child()
-                    .and_downcast::<gtk::Overlay>()
-                    .unwrap()
-                    .child()
-                    .and_downcast::<gtk::Grid>()
-                    .unwrap()
-                    .child_at(7, 0)
-                    .and_downcast::<gtk::ScrolledWindow>()
-                    .unwrap()
-                    .vadjustment();
-                vadjustment.set_value(vadjustment.value() + 20.0);
+                value.borrow_mut().current_note_index += 1;
+                value.borrow().list_current_notes();
+
+                // let vadjustment = value.borrow().window
+                //     .child()
+                //     .and_downcast::<gtk::Overlay>()
+                //     .unwrap()
+                //     .child()
+                //     .and_downcast::<gtk::Grid>()
+                //     .unwrap()
+                //     .child_at(7, 0)
+                //     .and_downcast::<gtk::ScrolledWindow>()
+                //     .unwrap()
+                //     .vadjustment();
+                // vadjustment.set_value(vadjustment.value() + 20.0);
             }
 
             (Key::p, ModifierType::CONTROL_MASK) => {
-                let vadjustment = value.borrow().window
-                    .child()
-                    .and_downcast::<gtk::Overlay>()
-                    .unwrap()
-                    .child()
-                    .and_downcast::<gtk::Grid>()
-                    .unwrap()
-                    .child_at(7, 0)
-                    .and_downcast::<gtk::ScrolledWindow>()
-                    .unwrap()
-                    .vadjustment();
-                vadjustment.set_value(vadjustment.value() - 20.0);
+                value.borrow_mut().current_note_index -= 1;
+                value.borrow().list_current_notes();
+
+                // let vadjustment = value.borrow().window
+                //     .child()
+                //     .and_downcast::<gtk::Overlay>()
+                //     .unwrap()
+                //     .child()
+                //     .and_downcast::<gtk::Grid>()
+                //     .unwrap()
+                //     .child_at(7, 0)
+                //     .and_downcast::<gtk::ScrolledWindow>()
+                //     .unwrap()
+                //     .vadjustment();
+                // vadjustment.set_value(vadjustment.value() - 20.0);
             }
         
 
