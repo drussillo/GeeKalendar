@@ -108,7 +108,7 @@ impl calendar::Page {
 
         // current month fill
         let mut today_row = 0;
-        let mut today_col = 0;
+        let mut today_col = calendar::days_from_start(&current_date, self.start_sun).try_into().unwrap();
         while current_date.month() == current_month {
             let button = Button::with_label(&current_date.day().to_string());
 

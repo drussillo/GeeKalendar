@@ -35,6 +35,7 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
 
             (Key::L, _) | (Key::l, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_month += 1;
+                // value.borrow_mut().current_note_index = 0;
                 value.borrow().make_page();
             }
             (Key::H, _) | (Key::h, ModifierType::CONTROL_MASK) => {
