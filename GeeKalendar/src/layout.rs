@@ -199,7 +199,6 @@ impl calendar::Page {
             for i in 0..current_notes.len() {
                 let current_note_box = current_notes[i].get_box();
 
-                // TODO: Reset on new page
                 let selected_index = if self.current_note_index < 0 {
                     // (abs((i+1) / (int)len) + 1) * len + i
                     ((((self.current_note_index+1) / current_notes.len() as i32).abs() + 1) * 
