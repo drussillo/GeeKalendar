@@ -198,11 +198,23 @@ impl calendar::Page {
         if let Some(current_notes) = notes::read_notes(date) {
             for i in 0..current_notes.len() {
                 let current_note_box = current_notes[i].get_box();
-                if i == (self.current_note_index.abs() as usize) % current_notes.len() {
+
+                // TODO: Reset on new page
+                let selected_index = if self.current_note_index < 0 {
+                    // (abs((i+1) / (int)len) + 1) * len + i
+                    ((((self.current_note_index+1) / current_notes.len() as i32).abs() + 1) * 
+                     current_notes.len() as i32 + self.current_note_index) as usize
+                } else {
+                    self.current_note_index as usize % current_notes.len()
+                };
+                // println!("{} -> {}", self.current_note_index, selected_index);
+
+                if i == selected_index {
                     current_note_box.add_css_class("todo-note-box-selected");
                 }
                 notes_box.append(&current_note_box);
             }
+
         } else {
             notes_box.set_homogeneous(true);
             notes_box.append(
