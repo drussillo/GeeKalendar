@@ -384,6 +384,12 @@ impl calendar::Page {
     }
 
 
+    pub fn delete_note(&self) {
+        // TODO: complete delete note layout function
+        // if let current_notes = notes::read_notes()
+    }
+
+
     pub fn has_overlay(&self) -> bool {
         self.window
             .child()
