@@ -384,9 +384,38 @@ impl calendar::Page {
     }
 
 
-    pub fn delete_note(&self) {
-        // TODO: complete delete note layout function
-        // if let current_notes = notes::read_notes()
+    pub fn delete_note(&mut self) {
+        if !self.delete_prompt {
+            self.delete_prompt = true;
+            // TODO: show delete prompt
+            return
+        }
+
+        self.delete_prompt = false;
+
+        // extract date
+        let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
+        let current_date: &DateTime<Local>;
+        unsafe {
+            current_date = button
+                .data::<DateTime<Local>>("date")
+                .unwrap()
+                .as_ref();
+        }
+
+        let mut current_notes = notes::read_notes(&current_date).unwrap();
+
+        let selected_index = if self.current_note_index < 0 {
+            // (abs((i+1) / (int)len) + 1) * len + i
+            ((((self.current_note_index+1) / current_notes.len() as i32).abs() + 1) * 
+             current_notes.len() as i32 + self.current_note_index) as usize
+        } else {
+            self.current_note_index as usize % current_notes.len()
+        };
+
+        current_notes.remove(selected_index);
+        notes::write_notes(&current_notes);
+        self.list_current_notes();
     }
 
 

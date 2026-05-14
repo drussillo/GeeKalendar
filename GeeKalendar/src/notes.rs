@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
 use directories::BaseDirs;
@@ -10,7 +9,7 @@ use directories::BaseDirs;
 //     BLUE,
 // }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Note {
     pub date: String,
     pub title: String,
