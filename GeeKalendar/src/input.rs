@@ -26,6 +26,8 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                     .unwrap();
                 overlay_ref.remove_overlay(overlay_child);
             }
+            if key == Key::d { value.borrow_mut().delete_note(); }
+
             return glib::Propagation::Proceed;
         }
 

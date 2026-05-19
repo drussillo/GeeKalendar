@@ -143,7 +143,7 @@ impl calendar::Page {
 
         // next month fill
         while calendar::days_from_start(&current_date, self.start_sun) > 0 {
-            // TODO: Add button funcitons
+            // TODO?: Add button funcitons
             let button = Button::with_label(&current_date.day().to_string());
 
             if let Some(_) = notes::read_notes(&current_date) {
@@ -167,7 +167,6 @@ impl calendar::Page {
             .child(&page_grid)
             .build();
 
-        // self.window.set_child(Some(&page_grid));
         self.window.set_child(Some(&note_overlay));
 
         // focus on today and display notes
@@ -385,13 +384,6 @@ impl calendar::Page {
 
 
     pub fn delete_note(&mut self) {
-        if !self.delete_prompt {
-            self.delete_prompt = true;
-            // TODO: show delete prompt
-            return
-        }
-
-        self.delete_prompt = false;
 
         // extract date
         let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
@@ -413,9 +405,49 @@ impl calendar::Page {
             self.current_note_index as usize % current_notes.len()
         };
 
-        current_notes.remove(selected_index);
-        notes::write_notes(&current_notes);
-        self.list_current_notes();
+        let overlay_ref = &self.window
+            .child()
+            .and_downcast::<Overlay>()
+            .unwrap();
+
+        // create prompt overlay
+        let prompt_box = Box::builder()
+            .css_classes(vec!("note-overlay"))
+            .valign(gtk::Align::Center)
+            .halign(gtk::Align::Center)
+            .orientation(gtk::Orientation::Vertical)
+            .build();
+
+
+        if !self.delete_prompt {
+            self.delete_prompt = true;
+            // TODO: show delete prompt
+
+            prompt_box.append(&Label::builder()
+                .use_markup(true)
+                .label("<b>DELETE NOTE?</b>")
+                .margin_top(20)
+                .margin_bottom(20)
+                .margin_end(20)
+                .margin_start(20)
+                .build());
+
+            prompt_box.append(&current_notes[selected_index].get_box());
+            overlay_ref.add_overlay(&prompt_box);
+
+        } else {
+            self.delete_prompt = false;
+            overlay_ref.remove_overlay(
+                &overlay_ref
+                    .observe_children()
+                    .item(1)
+                    .and_downcast::<Box>()
+                    .unwrap()
+            );
+            current_notes.remove(selected_index);
+            notes::write_notes(&current_notes);
+            self.list_current_notes();
+        }
     }
 
 
@@ -458,7 +490,6 @@ impl notes::Note {
 
         // title
         note_box.append(&Label::builder()
-            // .css_classes(vec!(""))
             .margin_top(10)
             .margin_bottom(5)
             .justify(gtk::Justification::Center)

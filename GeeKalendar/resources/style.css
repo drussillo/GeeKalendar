@@ -61,6 +61,12 @@ button:focus {
     border-style: solid;
     border-width: 2px;
     border-color: #161622;
+    /* color: #AAAAAA; */
+    color: #FF0000;
+}
+
+.test:disabled {
+    color: #00FF00;
 }
 
 .todo-note-box-selected {
