@@ -360,7 +360,7 @@ impl calendar::Page {
             let new_note = notes::Note::new(date, &new_title, &new_message);
             let mut notes = notes::read_notes(&date).unwrap_or_default();
             notes.push(new_note);
-            notes::write_notes(&notes);
+            notes::write_notes(&notes, &date);
 
             // update UI
             button_clone.add_css_class("day-with-note");
@@ -395,7 +395,7 @@ impl calendar::Page {
                 .as_ref();
         }
 
-        let mut current_notes = notes::read_notes(&current_date).unwrap();
+        let Some(mut current_notes) = notes::read_notes(&current_date) else { return };
 
         let selected_index = if self.current_note_index < 0 {
             // (abs((i+1) / (int)len) + 1) * len + i
@@ -423,8 +423,16 @@ impl calendar::Page {
             .n_items()
             > 1;
 
+
         if !delete_prompt {
-            // TODO: show delete prompt
+            // show delete prompt
+
+            // TODO: disable background
+            let grid_ref = &overlay_ref
+                .child()
+                .and_downcast::<Grid>()
+                .unwrap();
+            // grid_ref.set_sensitive(false);
 
             prompt_box.append(&Label::builder()
                 .use_markup(true)
@@ -438,6 +446,14 @@ impl calendar::Page {
             prompt_box.append(&current_notes[selected_index].get_box());
             overlay_ref.add_overlay(&prompt_box);
 
+            // re-enable background
+            let grid_ref_clone = grid_ref.clone();
+            let self_clone = self.clone();
+            prompt_box.connect_unrealize(move |_| {
+                grid_ref_clone.set_sensitive(true);
+                self_clone.focus_on_date(current_date);
+            });
+
         } else {
             overlay_ref.remove_overlay(
                 &overlay_ref
@@ -447,8 +463,8 @@ impl calendar::Page {
                     .unwrap()
             );
             current_notes.remove(selected_index);
-            notes::write_notes(&current_notes);
-            self.list_current_notes();
+            notes::write_notes(&current_notes, &current_date);
+            self.make_page();
         }
     }
 

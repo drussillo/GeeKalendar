@@ -50,13 +50,7 @@ pub fn read_notes(date: &DateTime<Local>) -> Option<Vec<Note>> {
 }
 
 
-pub fn write_notes(notes: &Vec<Note>) {
-    if notes.is_empty() {
-        return
-    }
-
-    let date = DateTime::parse_from_rfc3339(&notes[0].date).unwrap();
-
+pub fn write_notes(notes: &Vec<Note>, date: &DateTime<Local>) {
     let mut path = BaseDirs::new()
         .unwrap()
         .data_dir()
@@ -71,6 +65,13 @@ pub fn write_notes(notes: &Vec<Note>) {
     }
 
     path.push(format!("{}.json", date.date_naive()));
+
+    if notes.is_empty() {
+        if let Err(e) = std::fs::remove_file(&path) {
+            println!("Error: could not delete file {}: {}", path.display(), e);
+        }
+        return
+    }
     match serde_json::to_string_pretty(notes) {
         Err(e) => println!("Error: could not serialize vector for {}: {}", date.date_naive(), e),
         Ok(j) => {
