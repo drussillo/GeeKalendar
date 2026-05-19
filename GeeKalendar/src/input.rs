@@ -26,7 +26,7 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                     .unwrap();
                 overlay_ref.remove_overlay(overlay_child);
             }
-            if key == Key::d { value.borrow_mut().delete_note(); }
+            if key == Key::d { value.borrow().delete_note(); }
 
             return glib::Propagation::Proceed;
         }
@@ -38,25 +38,21 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::L, _) | (Key::l, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_month += 1;
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
             (Key::H, _) | (Key::h, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_month -= 1;
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
             (Key::K, _) | (Key::k, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_month += 12; 
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
             (Key::J, _) | (Key::j, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_month -= 12; 
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
 
@@ -68,31 +64,26 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::h, _) => {
                 value.borrow().window.emit_move_focus(gtk4::DirectionType::Left);
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
             }
             (Key::j, _) => {
                 value.borrow().window.emit_move_focus(gtk4::DirectionType::Down);
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
             }
             (Key::k, _) => {
                 value.borrow().window.emit_move_focus(gtk4::DirectionType::Up);
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
             }
             (Key::l, _) => {
                 value.borrow().window.emit_move_focus(gtk4::DirectionType::Right);
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
             }
 
             (Key::n, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_note_index += 1;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
 
                 // let vadjustment = value.borrow().window
@@ -111,7 +102,6 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
 
             (Key::p, ModifierType::CONTROL_MASK) => {
                 value.borrow_mut().current_note_index -= 1;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().list_current_notes();
 
                 // let vadjustment = value.borrow().window
@@ -132,7 +122,6 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
             (Key::r, _) => {
                 value.borrow_mut().reset_current_month();
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
 
@@ -140,12 +129,11 @@ pub fn set_input(page: Rc<RefCell<calendar::Page>>) {
                 let previous = value.borrow().start_sun;
                 value.borrow_mut().start_sun = !previous;
                 value.borrow_mut().current_note_index = 0;
-                value.borrow_mut().delete_prompt = false;
                 value.borrow().make_page();
             }
 
             (Key::a, _) => value.borrow().clone().add_note(),
-            (Key::d, _) => value.borrow_mut().delete_note(),
+            (Key::d, _) => value.borrow().delete_note(),
 
             (_, _) => {}
         }

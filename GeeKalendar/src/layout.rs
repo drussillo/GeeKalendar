@@ -383,7 +383,7 @@ impl calendar::Page {
     }
 
 
-    pub fn delete_note(&mut self) {
+    pub fn delete_note(&self) {
 
         // extract date
         let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
@@ -418,9 +418,12 @@ impl calendar::Page {
             .orientation(gtk::Orientation::Vertical)
             .build();
 
+        let delete_prompt = overlay_ref
+            .observe_children()
+            .n_items()
+            > 1;
 
-        if !self.delete_prompt {
-            self.delete_prompt = true;
+        if !delete_prompt {
             // TODO: show delete prompt
 
             prompt_box.append(&Label::builder()
@@ -436,7 +439,6 @@ impl calendar::Page {
             overlay_ref.add_overlay(&prompt_box);
 
         } else {
-            self.delete_prompt = false;
             overlay_ref.remove_overlay(
                 &overlay_ref
                     .observe_children()

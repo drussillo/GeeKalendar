@@ -3,8 +3,6 @@ use gtk::{ApplicationWindow};
 use chrono::prelude::*;
 use chrono::{Duration, DateTime};
 
-use crate::notes;
-
 
 #[derive(Clone)]
 pub struct Page {
@@ -13,7 +11,6 @@ pub struct Page {
     pub current_month: i32,
     pub start_sun: bool,
     pub current_note_index: i32,
-    pub delete_prompt: bool
 }
 
 impl Page {
@@ -24,7 +21,6 @@ impl Page {
             current_month: 0,
             start_sun: true,
             current_note_index: 0,
-            delete_prompt: false
         }
     }
 
