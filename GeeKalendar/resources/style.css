@@ -61,13 +61,13 @@ button:focus {
     border-style: solid;
     border-width: 2px;
     border-color: #161622;
-    /* color: #AAAAAA; */
-    color: #FF0000;
+    color: #DDDDDD;
 }
 
-.test:disabled {
-    color: #00FF00;
+.todo-note-box:disabled label {
+    color: #DDDDDD;
 }
+
 
 .todo-note-box-selected {
     border-color: #DDDD88;
