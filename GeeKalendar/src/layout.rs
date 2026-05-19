@@ -385,26 +385,6 @@ impl calendar::Page {
 
     pub fn delete_note(&self) {
 
-        // extract date
-        let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
-        let current_date: &DateTime<Local>;
-        unsafe {
-            current_date = button
-                .data::<DateTime<Local>>("date")
-                .unwrap()
-                .as_ref();
-        }
-
-        let Some(mut current_notes) = notes::read_notes(&current_date) else { return };
-
-        let selected_index = if self.current_note_index < 0 {
-            // (abs((i+1) / (int)len) + 1) * len + i
-            ((((self.current_note_index+1) / current_notes.len() as i32).abs() + 1) * 
-             current_notes.len() as i32 + self.current_note_index) as usize
-        } else {
-            self.current_note_index as usize % current_notes.len()
-        };
-
         let overlay_ref = &self.window
             .child()
             .and_downcast::<Overlay>()
@@ -418,21 +398,58 @@ impl calendar::Page {
             .orientation(gtk::Orientation::Vertical)
             .build();
 
-        let delete_prompt = overlay_ref
+        let is_prompting = overlay_ref
             .observe_children()
             .n_items()
             > 1;
 
+        // extract date
+        let current_date = if !is_prompting {
+            let button = &gtk::prelude::GtkWindowExt::focus(&self.window).unwrap();
+            let current_date_temp: &DateTime<Local>;
+            unsafe {
+                current_date_temp = button
+                    .data::<DateTime<Local>>("date")
+                    .unwrap()
+                    .as_ref();
+                // store date in prompt box
+                prompt_box.set_data("date", current_date_temp);
+            }
+            current_date_temp
 
-        if !delete_prompt {
+        } else {
+            unsafe {
+                // TODO!!
+                &overlay_ref
+                    .observe_children()
+                    .item(1)
+                    .and_downcast::<Box>()
+                    .unwrap()
+                    .data::<DateTime<Local>>("date")
+                    .unwrap()
+                    .as_ref()
+            }
+        };
+
+        let Some(mut current_notes) = notes::read_notes(&current_date) else { return };
+
+        let selected_index = if self.current_note_index < 0 {
+            // (abs((i+1) / (int)len) + 1) * len + i
+            ((((self.current_note_index+1) / current_notes.len() as i32).abs() + 1) * 
+             current_notes.len() as i32 + self.current_note_index) as usize
+        } else {
+            self.current_note_index as usize % current_notes.len()
+        };
+
+
+        if !is_prompting {
             // show delete prompt
-
-            // TODO: disable background
             let grid_ref = &overlay_ref
                 .child()
                 .and_downcast::<Grid>()
                 .unwrap();
-            // grid_ref.set_sensitive(false);
+            // disable background
+            grid_ref.set_sensitive(false);
 
             prompt_box.append(&Label::builder()
                 .use_markup(true)
