@@ -175,11 +175,12 @@ impl calendar::Page {
     }
 
     pub fn list_current_notes(&self) {
-        // get date
+        let focused_button = &gtk4::prelude::GtkWindowExt::focus(&self.window).unwrap();
+
+        // extract date
         let date: &DateTime<Local>;
         unsafe {
-            date = gtk4::prelude::GtkWindowExt::focus(&self.window)
-                .unwrap()
+            date = focused_button
                 .data::<DateTime<Local>>("date")
                 .unwrap()
                 .as_ref();
@@ -195,6 +196,7 @@ impl calendar::Page {
 
         // get notes vector
         if let Some(current_notes) = notes::read_notes(date) {
+            // len > 0
             for i in 0..current_notes.len() {
                 let current_note_box = current_notes[i].get_box();
 
@@ -214,6 +216,7 @@ impl calendar::Page {
             }
 
         } else {
+            // len == 0
             notes_box.set_homogeneous(true);
             notes_box.append(
                 &Label::builder()
@@ -221,6 +224,7 @@ impl calendar::Page {
                     .justify(gtk::Justification::Center)
                     .build()
             );
+            focused_button.remove_css_class("day-with-note");
         }
 
         self.window
@@ -236,22 +240,6 @@ impl calendar::Page {
             .set_child(Some(&notes_box));
     }
 
-    // pub fn update_selected_note(&self) {
-    //     let notes = &self.window
-    //         .child()
-    //         .and_downcast::<Overlay>()
-    //         .unwrap()
-    //         .child()
-    //         .and_downcast::<Grid>()
-    //         .unwrap()
-    //         .child_at(7, 0)
-    //         .and_downcast::<ScrolledWindow>()
-    //         .unwrap()
-    //         .observe_children();
-    //     for note in notes {
-    //         let x = note.unwrap();
-    //     }
-    // }
 
     pub fn add_note(self) {
         // extract date
@@ -413,13 +401,12 @@ impl calendar::Page {
                     .unwrap()
                     .as_ref();
                 // store date in prompt box
-                prompt_box.set_data("date", current_date_temp);
+                prompt_box.set_data("date", *current_date_temp);
             }
             current_date_temp
 
         } else {
             unsafe {
-                // TODO!!
                 &overlay_ref
                     .observe_children()
                     .item(1)
@@ -443,14 +430,14 @@ impl calendar::Page {
 
 
         if !is_prompting {
-            // show delete prompt
+            // disable background
             let grid_ref = &overlay_ref
                 .child()
                 .and_downcast::<Grid>()
                 .unwrap();
-            // disable background
             grid_ref.set_sensitive(false);
 
+            // show delete prompt
             prompt_box.append(&Label::builder()
                 .use_markup(true)
                 .label("<b>DELETE NOTE?</b>")
@@ -463,7 +450,7 @@ impl calendar::Page {
             prompt_box.append(&current_notes[selected_index].get_box());
             overlay_ref.add_overlay(&prompt_box);
 
-            // re-enable background
+            // re-enable background on unrealize signal
             let grid_ref_clone = grid_ref.clone();
             let self_clone = self.clone();
             prompt_box.connect_unrealize(move |_| {
@@ -472,6 +459,8 @@ impl calendar::Page {
             });
 
         } else {
+            current_notes.remove(selected_index);
+            notes::write_notes(&current_notes, current_date);
             overlay_ref.remove_overlay(
                 &overlay_ref
                     .observe_children()
@@ -479,9 +468,7 @@ impl calendar::Page {
                     .and_downcast::<Box>()
                     .unwrap()
             );
-            current_notes.remove(selected_index);
-            notes::write_notes(&current_notes, &current_date);
-            self.make_page();
+            self.list_current_notes();
         }
     }
 
